@@ -12,7 +12,11 @@
     "db:migrate": "cd packages/database && npx prisma migrate dev"
   },
   "devDependencies": {
+    "@types/node": "^25.3.5",
     "turbo": "^2.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.3.0"
   }
 }
