@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  apiKey       String   @unique
+  apiSecret    String
+  createdAt    DateTime @default(now())
+
+  orders       Order[]
+  payments     Payment[]
+  paymentLinks PaymentLink[]
+  webhooks     Webhook[]
+  settlements  Settlement[]
+}
+
+model Order {
+  id         String    @id @default(uuid())
+  merchantId String
+  amount     Int
+  currency   String    @default("INR")
+  status     String    @default("created") // created | paid | expired
+  receipt    String?
+  createdAt  DateTime  @default(now())
+
+  merchant   Merchant  @relation(fields: [merchantId], references: [id])
+  payments   Payment[]
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  orderId       String
+  merchantId    String
+  method        String   // upi | card | wallet | netbanking
+  status        String   @default("created") // created | authorized | captured | failed | refunded
+  transactionId String?
+  createdAt     DateTime @default(now())
+
+  order         Order    @relation(fields: [orderId], references: [id])
+  merchant      Merchant @relation(fields: [merchantId], references: [id])
+  refunds       Refund[]
+}
+
+model PaymentLink {
+  id         String    @id @default(uuid())
+  merchantId String
+  amount     Int
+  linkToken  String    @unique
+  status     String    @default("active") // active | paid | expired
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  merchant   Merchant  @relation(fields: [merchantId], references: [id])
+}
+
+model Refund {
+  id        String   @id @default(uuid())
+  paymentId String
+  amount    Int
+  status    String   @default("pending") // pending | processed | failed
+  createdAt DateTime @default(now())
+
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+}
+
+model Webhook {
+  id         String       @id @default(uuid())
+  merchantId String
+  url        String
+  secret     String
+  createdAt  DateTime     @default(now())
+
+  merchant   Merchant     @relation(fields: [merchantId], references: [id])
+  logs       WebhookLog[]
+}
+
+model WebhookLog {
+  id             String   @id @default(uuid())
+  webhookId      String
+  event          String
+  payload        Json
+  deliveryStatus String   @default("pending") // pending | delivered | failed
+  createdAt      DateTime @default(now())
+
+  webhook        Webhook  @relation(fields: [webhookId], references: [id])
+}
+
+model Settlement {
+  id          String    @id @default(uuid())
+  merchantId  String
+  amount      Int
+  status      String    @default("pending") // pending | processed
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  merchant    Merchant  @relation(fields: [merchantId], references: [id])
+}

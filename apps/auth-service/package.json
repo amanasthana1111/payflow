@@ -1,0 +1,29 @@
+{
+  "name": "@payflow/auth-service",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:generate": "prisma generate --schema=../../packages/database/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^8.0.0",
+    "@payflow/database": "*",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.0",
+    "fastify": "^4.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "nodemon": "^3.0.0",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
