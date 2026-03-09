@@ -30,7 +30,7 @@ export async function rateLimitPlugin(app: FastifyInstance) {
   }
 
   await app.register(rateLimit, {
-    max: 100,
+    max: 20,
     timeWindow: 60000,
     ...(redis ? { redis } : {}),
     keyGenerator: (req) => {

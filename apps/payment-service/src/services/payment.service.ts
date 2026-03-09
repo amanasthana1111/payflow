@@ -17,7 +17,7 @@ export async function initiatePayment(
   }
 
   // Validate method
-  const validMethods = ['upi', 'card', 'wallet', 'netbanking'];
+  const validMethods = ['upi', 'card', 'wallet', 'netbanking','crypto'];
   if (!validMethods.includes(method)) {
     throw new Error(`Invalid payment method. Use: ${validMethods.join(', ')}`);
   }
