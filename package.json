@@ -8,6 +8,7 @@
   "packageManager": "npm@11.10.1",
   "scripts": {
     "dev": "turbo run dev",
+    "start" : "npm run build && npm run dev",
     "build": "turbo run build",
     "db:generate": "turbo run db:generate",
     "db:migrate": "cd packages/database && npx prisma migrate dev"
