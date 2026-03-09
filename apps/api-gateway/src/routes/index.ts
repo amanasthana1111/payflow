@@ -16,6 +16,7 @@ export async function routes(app: FastifyInstance) {
   // Protected
   app.post('/merchants/api-keys', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, AUTH_URL));
   app.post('/orders', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, ORDER_URL));
+  app.get('/orders', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, ORDER_URL));
   app.get('/orders/:id', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, ORDER_URL));
   app.post('/payments/initiate', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, PAYMENT_URL));
   app.get('/payments/:id', { preHandler: authenticate }, (req, reply) => proxyRequest(req, reply, PAYMENT_URL));
