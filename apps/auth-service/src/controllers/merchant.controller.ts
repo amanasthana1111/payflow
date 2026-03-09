@@ -1,7 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { registerMerchant, loginMerchant, regenerateApiKeys } from '../services/merchant.service';
+import { LoginInput, RegisterInput } from '../validation/merchant.validation';
 
-export async function register(req: FastifyRequest, reply: FastifyReply) {
+export async function register(req: FastifyRequest<{ Body: RegisterInput }>, reply: FastifyReply) {
   const { name, email, password } = req.body as any;
   try {
     const result = await registerMerchant(name, email, password);
@@ -11,7 +12,7 @@ export async function register(req: FastifyRequest, reply: FastifyReply) {
   }
 }
 
-export async function login(req: FastifyRequest, reply: FastifyReply) {
+export async function login(req: FastifyRequest<{ Body: LoginInput }>, reply: FastifyReply) {
   const { email, password } = req.body as any;
   try {
     const merchant = await loginMerchant(email, password);

@@ -2,10 +2,12 @@ import Fastify from 'fastify';
 import fjwt from '@fastify/jwt';
 import dotenv from 'dotenv';
 import { merchantRoutes } from './routes/merchant.routes';
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 
 dotenv.config();
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+
 
 app.register(fjwt, { secret: process.env.JWT_SECRET || 'secret' });
 app.register(merchantRoutes);

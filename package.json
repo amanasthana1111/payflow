@@ -5,6 +5,7 @@
     "apps/*",
     "packages/*"
   ],
+  "packageManager": "npm@11.10.1",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -17,6 +18,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@fastify/rate-limit": "^10.3.0"
+    "@fastify/rate-limit": "^10.3.0",
+    "fastify": "^5.8.2"
   }
 }
