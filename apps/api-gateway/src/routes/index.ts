@@ -2,15 +2,15 @@ import { FastifyInstance } from 'fastify';
 import { proxyRequest } from '../utils/proxy';
 import { authenticate } from '../middleware/authenticate';
 
-const AUTH_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
-const ORDER_URL = process.env.ORDER_SERVICE_URL || 'http://localhost:3002';
-const PAYMENT_URL = process.env.PAYMENT_SERVICE_URL || 'http://localhost:3003';
-const WEBHOOK_URL = process.env.WEBHOOK_SERVICE_URL || 'http://localhost:3004';
-const REFUND_URL = process.env.REFUND_SERVICE_URL || 'http://localhost:3005';
+const AUTH_URL = process.env.AUTH_SERVICE_URL || 'http://127.0.0.1:3001';
+const ORDER_URL = process.env.ORDER_SERVICE_URL || 'http://127.0.0.1:3002';
+const PAYMENT_URL = process.env.PAYMENT_SERVICE_URL || 'http://127.0.0.1:3003';
+const WEBHOOK_URL = process.env.WEBHOOK_SERVICE_URL || 'http://127.0.0.1:3004';
+const REFUND_URL = process.env.REFUND_SERVICE_URL || 'http://127.0.0.1:3005';
 
 export async function routes(app: FastifyInstance) {
   // Public
-  app.post('/merchants/register', (req, reply) => proxyRequest(req, reply, AUTH_URL));
+  app.post('/merchants/register',(req, reply) => proxyRequest(req, reply, AUTH_URL));
   app.post('/merchants/login', (req, reply) => proxyRequest(req, reply, AUTH_URL));
 
   // Protected

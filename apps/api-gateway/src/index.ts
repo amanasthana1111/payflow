@@ -1,13 +1,11 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
-import { jwtPlugin } from './plugins/jwt.plugin';
+dotenv.config();
+import jwtPlugin from './plugins/jwt.plugin';
 import { rateLimitPlugin } from './plugins/rateLimit.plugin';
 import { routes } from './routes/index';
 
-dotenv.config();
-
 const app = Fastify({ logger: true });
-
 app.register(jwtPlugin);
 app.register(rateLimitPlugin);
 app.register(routes);

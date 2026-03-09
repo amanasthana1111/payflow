@@ -2,11 +2,16 @@ import Fastify from 'fastify';
 import fjwt from '@fastify/jwt';
 import dotenv from 'dotenv';
 import { merchantRoutes } from './routes/merchant.routes';
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-
+import {
+  serializerCompiler,
+  validatorCompiler,
+  ZodTypeProvider
+} from "fastify-type-provider-zod";
 dotenv.config();
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 
 app.register(fjwt, { secret: process.env.JWT_SECRET || 'secret' });
