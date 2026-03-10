@@ -1,0 +1,11 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json ./
+COPY tsconfig.json ./
+COPY packages/database ./packages/database
+COPY apps/auth-service ./apps/auth-service
+WORKDIR /app/apps/auth-service
+RUN npm install
+RUN npx prisma generate --schema=../../packages/database/prisma/schema.prisma
+EXPOSE 3001
+CMD ["npx", "ts-node", "src/index.ts"]

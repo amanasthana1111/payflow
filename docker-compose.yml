@@ -1,0 +1,180 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: payflow-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment_gateway
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: node:20-alpine
+    container_name: payflow-migrate
+    working_dir: /app/packages/database
+    volumes:
+      - .:/app
+    command: sh -c "npm install && npx prisma migrate deploy"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    container_name: payflow-auth
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: payflow-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+      REDIS_URL: ${REDIS_URL}
+      AUTH_SERVICE_URL: http://auth-service:3001
+      ORDER_SERVICE_URL: http://order-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3003
+      WEBHOOK_SERVICE_URL: http://webhook-service:3004
+      REFUND_SERVICE_URL: http://refund-service:3005
+      SETTLEMENT_SERVICE_URL: http://settlement-service:3006
+    depends_on:
+      - auth-service
+      - order-service
+      - payment-service
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.order
+    container_name: payflow-order
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.payment
+    container_name: payflow-payment
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+      REDIS_URL: ${REDIS_URL}
+      WEBHOOK_SERVICE_URL: http://webhook-service:3004
+      NOTIFICATION_SERVICE_URL: http://notification-service:3007
+      INTERNAL_SECRET: payflow_super_secret_jwt_key_2024
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  webhook-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.webhook
+    container_name: payflow-webhook
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: 3004
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+      REDIS_URL: ${REDIS_URL}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  refund-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.refund
+    container_name: payflow-refund
+    ports:
+      - "3005:3005"
+    environment:
+      PORT: 3005
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  settlement-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.settlement
+    container_name: payflow-settlement
+    ports:
+      - "3006:3006"
+    environment:
+      PORT: 3006
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_gateway
+      JWT_SECRET: payflow_super_secret_jwt_key_2024
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification
+    container_name: payflow-notification
+    ports:
+      - "3007:3007"
+    environment:
+      PORT: 3007
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM}
+      MERCHANT_WHATSAPP_TO: ${MERCHANT_WHATSAPP_TO}
+
+  checkout:
+    build:
+      context: .
+      dockerfile: Dockerfile.checkout
+    container_name: payflow-checkout
+    ports:
+      - "3008:3008"
+    environment:
+      PORT: 3008
+      API_GATEWAY_URL: http://api-gateway:3000
+    depends_on:
+      - api-gateway
+
+volumes:
+  postgres_data:

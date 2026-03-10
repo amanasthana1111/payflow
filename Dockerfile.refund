@@ -1,0 +1,11 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json ./
+COPY tsconfig.json ./
+COPY packages/database ./packages/database
+COPY apps/refund-service ./apps/refund-service
+WORKDIR /app/apps/refund-service
+RUN npm install
+RUN npx prisma generate --schema=../../packages/database/prisma/schema.prisma
+EXPOSE 3005
+CMD ["npx", "ts-node", "src/index.ts"]

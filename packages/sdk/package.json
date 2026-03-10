@@ -1,0 +1,19 @@
+{
+  "name": "@payflow/sdk",
+  "version": "1.0.0",
+  "description": "Official Node.js SDK for Payflow Payment Gateway",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["payflow", "payment", "gateway", "sdk"],
+  "dependencies": {
+    "undici": "^6.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.6.3"
+  }
+}
