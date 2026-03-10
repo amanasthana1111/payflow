@@ -35,7 +35,14 @@ export async function getWebhookById(webhookId: string, merchantId: string) {
     include: { logs: { orderBy: { createdAt: 'desc' }, take: 10 } }
   });
   if (!webhook) throw new Error('Webhook not found');
-  return webhook;
+
+  return {
+    webhook_id: webhook.id,
+    url: webhook.url,
+    secret: webhook.secret,
+    created_at: webhook.createdAt,
+    logs: webhook.logs
+  };
 }
 
 export async function deleteWebhook(webhookId: string, merchantId: string) {

@@ -18,6 +18,7 @@ export async function deliverWebhook(
   const signature = generateSignature(payloadString, webhook.secret);
 
   let deliveryStatus = 'failed';
+  let errorMessage = '';
 
   try {
     const response = await fetch(webhook.url, {
@@ -31,23 +32,25 @@ export async function deliverWebhook(
     });
 
     deliveryStatus = response.ok ? 'delivered' : 'failed';
+    if (!response.ok) errorMessage = `HTTP ${response.status}`;
 
-  } catch (err) {
+  } catch (err: any) {
     deliveryStatus = 'failed';
+    errorMessage = err.message;
+    console.error(`❌ Delivery error for webhook ${webhookId}:`, err.message);
   }
 
-  // Log the delivery attempt
+  // ✅ FIXED — removed payload field (not in schema)
   await prisma.webhookLog.create({
     data: {
       webhookId,
       event,
-      payload,
       deliveryStatus
     }
   });
 
   if (deliveryStatus === 'failed') {
-    throw new Error('Webhook delivery failed');
+    throw new Error(`Webhook delivery failed: ${errorMessage}`);
   }
 
   return { status: deliveryStatus };

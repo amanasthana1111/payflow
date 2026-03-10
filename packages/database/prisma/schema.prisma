@@ -87,7 +87,7 @@ model WebhookLog {
   id             String   @id @default(uuid())
   webhookId      String
   event          String
-  payload        Json
+  payload        Json?
   deliveryStatus String   @default("pending") // pending | delivered | failed
   createdAt      DateTime @default(now())
 

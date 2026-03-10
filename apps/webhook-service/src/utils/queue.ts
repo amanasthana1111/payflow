@@ -35,7 +35,7 @@ export function startWorker() {
     },
     {
       connection,
-      concurrency: 5
+      concurrency: 500
     }
   );
 

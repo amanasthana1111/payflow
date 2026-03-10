@@ -13,10 +13,13 @@ export async function register(req: FastifyRequest<{ Body: RegisterInput }>, rep
 }
 
 export async function login(req: FastifyRequest<{ Body: LoginInput }>, reply: FastifyReply) {
-  const { email, password } = req.body as any;
+  const { email, password, api_key, api_secret } = req.body as any;
   try {
-    const merchant = await loginMerchant(email, password);
-    const token = await reply.jwtSign({ id: merchant.id, email: merchant.email });
+    // Support both: email+password (dashboard) and api_key+api_secret (SDK)
+    const identifier = email || api_key;
+    const secret     = password || api_secret;
+    const merchant   = await loginMerchant(identifier, secret);
+    const token      = await reply.jwtSign({ id: merchant.id, email: merchant.email });
     reply.send({ token });
   } catch (err: any) {
     reply.status(401).send({ error: err.message });

@@ -1,14 +1,36 @@
 {
-  "name": "@payflow/sdk",
-  "version": "1.0.0",
+  "name": "@amanasthana1111/payflow-sdk",
+  "version": "1.0.1",
   "description": "Official Node.js SDK for Payflow Payment Gateway",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "payflow",
+    "payment",
+    "gateway",
+    "sdk",
+    "razorpay",
+    "payments",
+    "india",
+    "upi",
+    "nodejs"
+  ],
+  "author": "Aman Asthana",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amanasthana1111/payflow"
+  },
+  "homepage": "https://github.com/amanasthana1111/payflow#readme",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["payflow", "payment", "gateway", "sdk"],
   "dependencies": {
     "undici": "^6.19.0"
   },

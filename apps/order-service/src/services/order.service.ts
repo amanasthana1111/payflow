@@ -40,7 +40,16 @@ export async function getOrderById(orderId: string, merchantId: string) {
   });
 
   if (!order) throw new Error('Order not found');
-  return order;
+
+  return {
+    order_id: order.id,
+    amount: order.amount,
+    currency: order.currency,
+    status: order.status,
+    receipt: order.receipt,
+    created_at: order.createdAt,
+    payments: order.payments
+  };
 }
 
 export async function getAllOrders(merchantId: string) {

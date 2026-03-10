@@ -23,16 +23,30 @@ export async function registerMerchant(name: string, email: string, password: st
   return { merchant_id: merchant.id };
 }
 
-export async function loginMerchant(email: string, password: string) {
-  if (!email || !password) {
-    throw new Error('Email and password are required');
+export async function loginMerchant(emailOrKey: string, passwordOrSecret: string) {
+  if (!emailOrKey || !passwordOrSecret) {
+    throw new Error('Credentials are required');
   }
 
-  const merchant = await prisma.merchant.findUnique({ where: { email } });
-  if (!merchant) throw new Error('Merchant not found');
+  let merchant;
 
-  const valid = await bcrypt.compare(password, merchant.passwordHash);
-  if (!valid) throw new Error('Invalid password');
+  // SDK login — api_key + api_secret
+  if (emailOrKey.startsWith('payflow_ak_')) {
+    merchant = await prisma.merchant.findUnique({
+      where: { apiKey: emailOrKey }
+    });
+    if (!merchant) throw new Error('Invalid API key');
+    if (merchant.apiSecret !== passwordOrSecret) throw new Error('Invalid API secret');
+
+  } else {
+    // Dashboard login — email + password
+    merchant = await prisma.merchant.findUnique({
+      where: { email: emailOrKey }
+    });
+    if (!merchant) throw new Error('Merchant not found');
+    const valid = await bcrypt.compare(passwordOrSecret, merchant.passwordHash);
+    if (!valid) throw new Error('Invalid password');
+  }
 
   return merchant;
 }
