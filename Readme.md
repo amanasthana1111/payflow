@@ -1,4 +1,3 @@
-```markdown
 # 💳 Payflow — Production-Grade Payment Gateway
 
 > A Razorpay-like payment gateway built with Node.js, TypeScript, Fastify, PostgreSQL, Redis, BullMQ, and Docker — following a microservices architecture with a Turborepo monorepo.
