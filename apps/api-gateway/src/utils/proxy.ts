@@ -19,6 +19,10 @@ export async function proxyRequest(
     if (req.headers["x-api-key"]) {
       headers["x-api-key"] = req.headers["x-api-key"] as string;
     }
+
+    if (req.headers["idempotency-key"]) {
+      headers["idempotency-key"] = req.headers["idempotency-key"] as string;
+    }
     const response = await fetch(url, {
       method: req.method,
       headers,

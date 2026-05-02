@@ -35,7 +35,7 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: Dockerfile.auth
+      dockerfile: docker/Dockerfile.auth
     container_name: payflow-auth
     ports:
       - "3001:3001"
@@ -50,7 +50,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile.gateway
+      dockerfile: docker/Dockerfile.gateway
     container_name: payflow-gateway
     ports:
       - "3000:3000"
@@ -72,7 +72,7 @@ services:
   order-service:
     build:
       context: .
-      dockerfile: Dockerfile.order
+      dockerfile: docker/Dockerfile.order
     container_name: payflow-order
     ports:
       - "3002:3002"
@@ -87,7 +87,7 @@ services:
   payment-service:
     build:
       context: .
-      dockerfile: Dockerfile.payment
+      dockerfile: docker/Dockerfile.payment
     container_name: payflow-payment
     ports:
       - "3003:3003"
@@ -106,7 +106,7 @@ services:
   webhook-service:
     build:
       context: .
-      dockerfile: Dockerfile.webhook
+      dockerfile: docker/Dockerfile.webhook
     container_name: payflow-webhook
     ports:
       - "3004:3004"
@@ -122,7 +122,7 @@ services:
   refund-service:
     build:
       context: .
-      dockerfile: Dockerfile.refund
+      dockerfile: docker/Dockerfile.refund
     container_name: payflow-refund
     ports:
       - "3005:3005"
@@ -137,7 +137,7 @@ services:
   settlement-service:
     build:
       context: .
-      dockerfile: Dockerfile.settlement
+      dockerfile: docker/Dockerfile.settlement
     container_name: payflow-settlement
     ports:
       - "3006:3006"
@@ -152,7 +152,7 @@ services:
   notification-service:
     build:
       context: .
-      dockerfile: Dockerfile.notification
+      dockerfile: docker/Dockerfile.notification
     container_name: payflow-notification
     ports:
       - "3007:3007"
@@ -166,7 +166,7 @@ services:
   checkout:
     build:
       context: .
-      dockerfile: Dockerfile.checkout
+      dockerfile: docker/Dockerfile.checkout
     container_name: payflow-checkout
     ports:
       - "3008:3008"
@@ -175,6 +175,28 @@ services:
       API_GATEWAY_URL: http://api-gateway:3000
     depends_on:
       - api-gateway
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: payflow-dashboard
+    ports:
+      - "3010:3010"
+    environment:
+      PORT: 3010
+      API_GATEWAY_URL: http://api-gateway:3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      ORDER_SERVICE_URL: http://order-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3003
+      WEBHOOK_SERVICE_URL: http://webhook-service:3004
+      REFUND_SERVICE_URL: http://refund-service:3005
+      SETTLEMENT_SERVICE_URL: http://settlement-service:3006
+      NOTIFICATION_SERVICE_URL: http://notification-service:3007
+      CHECKOUT_URL: http://localhost:3008
+    depends_on:
+      - api-gateway
+      - checkout
 
 volumes:
   postgres_data:

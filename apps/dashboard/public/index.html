@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payflow Dashboard</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --panel: #ffffff;
+        --panel-2: #eef4f8;
+        --ink: #14212b;
+        --muted: #64727f;
+        --line: #d9e2ea;
+        --brand: #0f766e;
+        --brand-2: #115e59;
+        --accent: #b42318;
+        --warn: #9a6700;
+        --ok: #087443;
+        --radius: 8px;
+        --shadow: 0 10px 28px rgba(20, 33, 43, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        letter-spacing: 0;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        border: 0;
+        border-radius: 7px;
+        background: var(--brand);
+        color: white;
+        min-height: 38px;
+        padding: 0 13px;
+        cursor: pointer;
+        font-weight: 650;
+      }
+      button:hover {
+        background: var(--brand-2);
+      }
+      button.secondary {
+        background: #dfe8ee;
+        color: var(--ink);
+      }
+      button.secondary:hover {
+        background: #cfdbe4;
+      }
+      button.danger {
+        background: var(--accent);
+      }
+      button.danger:hover {
+        background: #8f1d14;
+      }
+      button.icon {
+        width: 38px;
+        padding: 0;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: white;
+        color: var(--ink);
+        padding: 9px 10px;
+        min-height: 38px;
+        outline: none;
+      }
+      textarea {
+        min-height: 116px;
+        resize: vertical;
+        font-family:
+          ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 248px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: #16232d;
+        color: white;
+        padding: 18px 14px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 6px 6px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        margin-bottom: 14px;
+      }
+      .brand h1 {
+        font-size: 20px;
+        margin: 0;
+        letter-spacing: 0;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 3px 9px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #dbeafe;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .nav {
+        display: grid;
+        gap: 5px;
+      }
+      .nav button {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 9px;
+        width: 100%;
+        background: transparent;
+        color: #cbd5df;
+        padding: 10px;
+        font-weight: 650;
+        text-align: left;
+      }
+      .nav button:hover,
+      .nav button.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .side-state {
+        margin-top: 16px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        display: grid;
+        gap: 8px;
+        font-size: 12px;
+        color: #cbd5df;
+        overflow-wrap: anywhere;
+      }
+      .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #94a3b8;
+      }
+      .dot.ok {
+        background: #22c55e;
+      }
+      .dot.bad {
+        background: #ef4444;
+      }
+
+      .main {
+        padding: 22px;
+        min-width: 0;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .topbar h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .top-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px;
+        min-width: 0;
+      }
+      .card h3 {
+        margin: 0 0 12px;
+        font-size: 15px;
+      }
+      .span-4 {
+        grid-column: span 4;
+      }
+      .span-5 {
+        grid-column: span 5;
+      }
+      .span-6 {
+        grid-column: span 6;
+      }
+      .span-7 {
+        grid-column: span 7;
+      }
+      .span-8 {
+        grid-column: span 8;
+      }
+      .span-12 {
+        grid-column: span 12;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .full {
+        grid-column: 1 / -1;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+      }
+      .result {
+        margin-top: 12px;
+        background: #0f1f2a;
+        color: #dbeafe;
+        border-radius: var(--radius);
+        padding: 12px;
+        overflow: auto;
+        max-height: 330px;
+        font-family:
+          ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+        background: white;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 9px 10px;
+        font-size: 12px;
+        text-align: left;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+      }
+      th {
+        background: var(--panel-2);
+        color: #41515f;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      .status {
+        display: inline-flex;
+        min-height: 22px;
+        align-items: center;
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 750;
+        background: #e7eef5;
+        color: #334155;
+      }
+      .status.ok {
+        background: #dcfce7;
+        color: var(--ok);
+      }
+      .status.bad {
+        background: #fee2e2;
+        color: var(--accent);
+      }
+      .status.warn {
+        background: #fef3c7;
+        color: var(--warn);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .mono {
+        font-family:
+          ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      }
+      .copy-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      @media (max-width: 980px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+        }
+        .nav {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .span-4,
+        .span-5,
+        .span-6,
+        .span-7,
+        .span-8 {
+          grid-column: span 12;
+        }
+      }
+      @media (max-width: 620px) {
+        .main {
+          padding: 14px;
+        }
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .nav {
+          grid-template-columns: 1fr;
+        }
+        .copy-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>Payflow</h1>
+          <span class="badge">Dashboard</span>
+        </div>
+        <nav class="nav" id="nav"></nav>
+        <div class="side-state">
+          <div>
+            <span class="dot" id="tokenDot"></span> Token
+            <span id="tokenState">missing</span>
+          </div>
+          <div>
+            <span class="dot" id="keyDot"></span> API key
+            <span id="keyState">missing</span>
+          </div>
+          <div class="mono" id="merchantState">merchant: unknown</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <h2 id="pageTitle">Overview</h2>
+          <div class="top-actions">
+            <button class="secondary" onclick="refreshActive()">Refresh</button>
+            <button class="danger" onclick="clearSession()">
+              Clear Session
+            </button>
+          </div>
+        </div>
+
+        <section class="section active" id="overview">
+          <div class="grid">
+            <div class="card span-12">
+              <h3>Services</h3>
+              <div class="actions">
+                <button onclick="loadHealth()">Check Health</button>
+              </div>
+              <div
+                id="healthTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+            <div class="card span-6">
+              <h3>Gateway</h3>
+              <div class="result" id="configResult">Loading...</div>
+            </div>
+            <div class="card span-6">
+              <h3>Session</h3>
+              <div class="result" id="sessionResult"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="auth">
+          <div class="grid">
+            <div class="card span-6">
+              <h3>Register Merchant</h3>
+              <div class="form-grid">
+                <div>
+                  <label>Name</label><input id="regName" value="Test Store" />
+                </div>
+                <div>
+                  <label>Email</label
+                  ><input id="regEmail" value="test@store.com" />
+                </div>
+                <div class="full">
+                  <label>Password</label
+                  ><input id="regPassword" type="password" value="123456" />
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="registerMerchant()">Register</button>
+              </div>
+              <pre class="result" id="registerResult"></pre>
+            </div>
+            <div class="card span-6">
+              <h3>Login</h3>
+
+              <div class="form-grid">
+                <div>
+                  <label>Email</label>
+                  <input id="loginEmail" value="test@store.com" />
+                </div>
+
+                <div>
+                  <label>Password</label>
+                  <input id="loginPassword" type="password" value="123456" />
+                </div>
+
+                <div>
+                  <label>API Key</label>
+                  <input id="loginApiKey" placeholder="payflow_ak_..." />
+                </div>
+
+                <div>
+                  <label>API Secret</label>
+                  <input id="loginApiSecret" placeholder="payflow_sk_..." />
+                </div>
+
+                <!-- ✅ NEW JWT INPUT (hidden initially) -->
+                <div id="tokenWrapper" style="display: none">
+                  <label>JWT Token</label>
+                  <input
+                    id="jwtToken"
+                    placeholder="Paste your JWT token here"
+                  />
+                </div>
+              </div>
+
+              <div class="actions">
+                <button onclick="loginWithPassword()">Login Password</button>
+                <button class="secondary" onclick="loginWithApiKey()">
+                  Login API Key
+                </button>
+                <button onclick="generateApiKeys(event)">
+                  Generate API Keys
+                </button>
+              </div>
+
+              <pre class="result" id="loginResult"></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="orders">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>Create Order</h3>
+              <div class="form-grid">
+                <div>
+                  <label>Amount</label
+                  ><input id="orderAmount" type="number" value="50000" />
+                </div>
+                <div>
+                  <label>Currency</label
+                  ><input id="orderCurrency" value="INR" />
+                </div>
+                <div class="full">
+                  <label>Receipt</label
+                  ><input id="orderReceipt" value="receipt_001" />
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="createOrder()">Create</button
+                ><button class="secondary" onclick="listOrders()">List</button>
+              </div>
+              <pre class="result" id="orderResult"></pre>
+            </div>
+            <div class="card span-7">
+              <h3>Orders</h3>
+              <div class="copy-row">
+                <div>
+                  <label>Order ID</label
+                  ><input id="orderId" placeholder="order uuid" />
+                </div>
+                <button onclick="fetchOrder()">Fetch</button>
+              </div>
+              <div class="actions">
+                <button class="secondary" onclick="buildCheckoutUrl()">
+                  Checkout URL
+                </button>
+              </div>
+              <div id="checkoutUrlBox" class="result"></div>
+              <div
+                id="ordersTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="payments">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>Initiate Payment</h3>
+              <div class="form-grid">
+                <div class="full">
+                  <label>Order ID</label
+                  ><input id="paymentOrderId" placeholder="order uuid" />
+                </div>
+                <div>
+                  <label>Method</label>
+                  <select id="paymentMethod">
+                    <option value="upi">upi</option>
+                    <option value="card">card</option>
+                    <option value="wallet">wallet</option>
+                    <option value="netbanking">netbanking</option>
+                    <option value="crypto">crypto</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Idempotency Key</label><input id="idempotencyKey" />
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="initiatePayment()">Initiate</button
+                ><button class="secondary" onclick="listPayments()">
+                  List
+                </button>
+              </div>
+              <pre class="result" id="paymentResult"></pre>
+            </div>
+            <div class="card span-7">
+              <h3>Payments</h3>
+              <div class="copy-row">
+                <div>
+                  <label>Payment ID</label
+                  ><input id="paymentId" placeholder="payment uuid" />
+                </div>
+                <div class="actions" style="margin-top: 0">
+                  <button onclick="fetchPayment()">Fetch</button
+                  ><button class="secondary" onclick="capturePayment()">
+                    Capture
+                  </button>
+                </div>
+              </div>
+              <div
+                id="paymentsTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="webhooks">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>Register Webhook</h3>
+              <label>URL</label>
+              <input id="webhookUrl" placeholder="https://webhook.site/..." />
+              <div class="actions">
+                <button onclick="createWebhook()">Register</button
+                ><button class="secondary" onclick="listWebhooks()">
+                  List
+                </button>
+              </div>
+              <pre class="result" id="webhookResult"></pre>
+            </div>
+            <div class="card span-7">
+              <h3>Webhook Actions</h3>
+              <div class="form-grid">
+                <div>
+                  <label>Webhook ID</label
+                  ><input id="webhookId" placeholder="webhook uuid" />
+                </div>
+                <div>
+                  <label>Merchant ID</label
+                  ><input id="triggerMerchantId" placeholder="merchant uuid" />
+                </div>
+                <div>
+                  <label>Event</label
+                  ><input id="triggerEvent" value="payment.success" />
+                </div>
+                <div>
+                  <label>Payment ID</label
+                  ><input id="triggerPaymentId" placeholder="payment uuid" />
+                </div>
+                <div class="full">
+                  <label>Payload JSON</label
+                  ><textarea id="triggerPayload">
+{ "source": "dashboard" }</textarea
+                  >
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="fetchWebhook()">Fetch</button>
+                <button class="danger" onclick="deleteWebhook()">Delete</button>
+                <button class="secondary" onclick="triggerWebhook()">
+                  Trigger
+                </button>
+              </div>
+              <div
+                id="webhooksTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="refunds">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>Create Refund</h3>
+              <div class="form-grid">
+                <div class="full">
+                  <label>Payment ID</label
+                  ><input
+                    id="refundPaymentId"
+                    placeholder="captured payment uuid"
+                  />
+                </div>
+                <div>
+                  <label>Amount</label
+                  ><input id="refundAmount" type="number" value="20000" />
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="createRefund()">Create</button
+                ><button class="secondary" onclick="listRefunds()">List</button>
+              </div>
+              <pre class="result" id="refundResult"></pre>
+            </div>
+            <div class="card span-7">
+              <h3>Refunds</h3>
+              <div class="copy-row">
+                <div>
+                  <label>Refund ID</label
+                  ><input id="refundId" placeholder="refund uuid" />
+                </div>
+                <button onclick="fetchRefund()">Fetch</button>
+              </div>
+              <div
+                id="refundsTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="settlements">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>Settlement</h3>
+              <div class="actions">
+                <button onclick="createSettlement()">Create</button>
+                <button class="secondary" onclick="listSettlements()">
+                  List
+                </button>
+                <button class="secondary" onclick="settlementSummary()">
+                  Summary
+                </button>
+              </div>
+              <pre class="result" id="settlementResult"></pre>
+            </div>
+            <div class="card span-7">
+              <h3>Settlements</h3>
+              <div class="copy-row">
+                <div>
+                  <label>Settlement ID</label
+                  ><input id="settlementId" placeholder="settlement uuid" />
+                </div>
+                <button onclick="fetchSettlement()">Fetch</button>
+              </div>
+              <div
+                id="settlementsTable"
+                class="table-wrap"
+                style="margin-top: 12px"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="console">
+          <div class="grid">
+            <div class="card span-5">
+              <h3>API Console</h3>
+              <div class="form-grid">
+                <div>
+                  <label>Method</label>
+                  <select id="consoleMethod">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>DELETE</option>
+                    <option>PUT</option>
+                    <option>PATCH</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Path</label><input id="consolePath" value="/orders" />
+                </div>
+                <div class="full">
+                  <label>Idempotency Key</label
+                  ><input id="consoleIdempotency" />
+                </div>
+                <div class="full">
+                  <label>Body JSON</label
+                  ><textarea id="consoleBody">{}</textarea>
+                </div>
+              </div>
+              <div class="actions">
+                <button onclick="sendConsole()">Send</button>
+              </div>
+            </div>
+            <div class="card span-7">
+              <h3>Response</h3>
+              <pre class="result" id="consoleResult"></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const sections = [
+        ["overview", "Overview"],
+        ["auth", "Auth"],
+        ["orders", "Orders"],
+        ["payments", "Payments"],
+        ["webhooks", "Webhooks"],
+        ["refunds", "Refunds"],
+        ["settlements", "Settlements"],
+        ["console", "API Console"],
+      ];
+
+      const state = {
+        token: localStorage.getItem("payflow.token") || "",
+        apiKey: localStorage.getItem("payflow.apiKey") || "",
+        apiSecret: localStorage.getItem("payflow.apiSecret") || "",
+        merchantId: localStorage.getItem("payflow.merchantId") || "",
+        checkoutUrl: "http://127.0.0.1:3008",
+      };
+
+      function el(id) {
+        return document.getElementById(id);
+      }
+      function pretty(value) {
+        return JSON.stringify(value, null, 2);
+      }
+      function setResult(id, value) {
+        el(id).textContent = typeof value === "string" ? value : pretty(value);
+      }
+      function value(id) {
+        return el(id).value.trim();
+      }
+      function numberValue(id) {
+        return Number(value(id));
+      }
+      function statusClass(status) {
+        const s = String(status || "").toLowerCase();
+        if (
+          ["ok", "paid", "captured", "processed", "delivered", "active"].some(
+            (x) => s.includes(x),
+          )
+        )
+          return "ok";
+        if (
+          ["fail", "expired", "unauthorized", "deleted"].some((x) =>
+            s.includes(x),
+          )
+        )
+          return "bad";
+        if (["pending", "created", "authorized"].some((x) => s.includes(x)))
+          return "warn";
+        return "";
+      }
+
+      function decodeJwt(token) {
+        try {
+          const part = token.split(".")[1];
+          if (!part) return {};
+          const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
+          return JSON.parse(atob(normalized));
+        } catch {
+          return {};
+        }
+      }
+
+      function saveSession() {
+        localStorage.setItem("payflow.token", state.token || "");
+        localStorage.setItem("payflow.apiKey", state.apiKey || "");
+        localStorage.setItem("payflow.apiSecret", state.apiSecret || "");
+        localStorage.setItem("payflow.merchantId", state.merchantId || "");
+        renderSession();
+      }
+
+      function renderSession() {
+        const jwt = decodeJwt(state.token);
+        if (!state.merchantId && jwt.id) state.merchantId = jwt.id;
+        el("tokenDot").className = "dot " + (state.token ? "ok" : "bad");
+        el("keyDot").className = "dot " + (state.apiKey ? "ok" : "bad");
+        el("tokenState").textContent = state.token ? "ready" : "missing";
+        el("keyState").textContent = state.apiKey ? "ready" : "missing";
+        el("merchantState").textContent =
+          "merchant: " + (state.merchantId || jwt.id || "unknown");
+        el("sessionResult").textContent = pretty({
+          token: state.token ? state.token.slice(0, 24) + "..." : "",
+          api_key: state.apiKey,
+          api_secret: state.apiSecret
+            ? state.apiSecret.slice(0, 18) + "..."
+            : "",
+          merchant_id: state.merchantId || jwt.id || "",
+        });
+        if (el("loginApiKey")) el("loginApiKey").value = state.apiKey;
+        if (el("loginApiSecret")) el("loginApiSecret").value = state.apiSecret;
+        if (el("triggerMerchantId") && (state.merchantId || jwt.id))
+          el("triggerMerchantId").value = state.merchantId || jwt.id;
+      }
+
+      function headers(extra = {}) {
+        const h = { ...extra };
+        if (state.token) h.authorization = "Bearer " + state.token;
+        if (state.apiKey) h["x-api-key"] = state.apiKey;
+        return h;
+      }
+
+      async function request(method, path, body, extraHeaders = {}) {
+        const opts = { method, headers: headers(extraHeaders) };
+        if (body !== undefined) {
+          opts.headers["content-type"] = "application/json";
+          opts.body = JSON.stringify(body);
+        }
+        const res = await fetch("/api" + path, opts);
+        const text = await res.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
+        if (!res.ok) {
+          const message =
+            data && data.error ? data.error : "HTTP " + res.status;
+          throw Object.assign(new Error(message), { data, status: res.status });
+        }
+        return data;
+      }
+
+      async function safe(targetId, fn) {
+        try {
+          const data = await fn();
+          if (targetId) setResult(targetId, data);
+          renderSession();
+          return data;
+        } catch (err) {
+          if (targetId)
+            setResult(
+              targetId,
+              err.data || { error: err.message, status: err.status },
+            );
+        }
+      }
+
+      function table(containerId, rows, columns) {
+        const container = el(containerId);
+        if (!Array.isArray(rows) || rows.length === 0) {
+          container.innerHTML =
+            '<table><tbody><tr><td class="muted">No records</td></tr></tbody></table>';
+          return;
+        }
+        const thead =
+          "<thead><tr>" +
+          columns.map((c) => "<th>" + c.label + "</th>").join("") +
+          "</tr></thead>";
+        const tbody =
+          "<tbody>" +
+          rows
+            .map(
+              (row) =>
+                "<tr>" +
+                columns
+                  .map((c) => {
+                    const raw = c.value ? c.value(row) : row[c.key];
+                    const text =
+                      raw === undefined || raw === null ? "" : String(raw);
+                    if (c.status)
+                      return (
+                        '<td><span class="status ' +
+                        statusClass(text) +
+                        '">' +
+                        escapeHtml(text) +
+                        "</span></td>"
+                      );
+                    return "<td>" + escapeHtml(text) + "</td>";
+                  })
+                  .join("") +
+                "</tr>",
+            )
+            .join("") +
+          "</tbody>";
+        container.innerHTML = "<table>" + thead + tbody + "</table>";
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function money(paise) {
+        if (
+          paise === undefined ||
+          paise === null ||
+          Number.isNaN(Number(paise))
+        )
+          return "";
+        return "INR " + (Number(paise) / 100).toFixed(2);
+      }
+
+      function setActive(id) {
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".nav button")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.section === id),
+          );
+        el(id).classList.add("active");
+        el("pageTitle").textContent = sections.find((s) => s[0] === id)[1];
+        localStorage.setItem("payflow.activeSection", id);
+        refreshActive();
+      }
+
+      function renderNav() {
+        el("nav").innerHTML = sections
+          .map(
+            ([id, title]) =>
+              '<button data-section="' +
+              id +
+              '" onclick="setActive(\'' +
+              id +
+              "')\">" +
+              title +
+              "</button>",
+          )
+          .join("");
+      }
+
+      async function loadConfig() {
+        const res = await fetch("/config");
+        const config = await res.json();
+        state.checkoutUrl = config.checkoutUrl;
+        setResult("configResult", config);
+      }
+
+      async function loadHealth() {
+        const res = await fetch("/service-health");
+        const data = await res.json();
+        table("healthTable", data.services, [
+          { label: "Service", value: (r) => r.name },
+          { label: "URL", value: (r) => r.url },
+          {
+            label: "Status",
+            value: (r) => (r.ok ? "ok" : "down"),
+            status: true,
+          },
+          { label: "HTTP", value: (r) => r.status },
+          {
+            label: "Body",
+            value: (r) =>
+              typeof r.body === "string" ? r.body : JSON.stringify(r.body),
+          },
+        ]);
+      }
+
+      function clearSession() {
+        state.token = "";
+        state.apiKey = "";
+        state.apiSecret = "";
+        state.merchantId = "";
+        saveSession();
+      }
+
+      function refreshActive() {
+        const active =
+          document.querySelector(".section.active")?.id || "overview";
+        if (active === "overview") loadHealth();
+        if (active === "orders") listOrders();
+        if (active === "payments") listPayments();
+        if (active === "webhooks") listWebhooks();
+        if (active === "refunds") listRefunds();
+        if (active === "settlements") listSettlements();
+      }
+
+      async function registerMerchant() {
+        await safe("registerResult", async () => {
+          const data = await request("POST", "/merchants/register", {
+            name: value("regName"),
+            email: value("regEmail"),
+            password: value("regPassword"),
+          });
+          if (data.merchant_id) state.merchantId = data.merchant_id;
+          saveSession();
+          return data;
+        });
+      }
+
+      async function loginWithPassword() {
+        await safe("loginResult", async () => {
+          const data = await request("POST", "/merchants/login", {
+            email: value("loginEmail"),
+            password: value("loginPassword"),
+          });
+          state.token = data.token || "";
+          const jwt = decodeJwt(state.token);
+          state.merchantId = jwt.id || state.merchantId;
+          saveSession();
+          return data;
+        });
+      }
+
+      async function loginWithApiKey() {
+        await safe("loginResult", async () => {
+          state.apiKey = value("loginApiKey");
+          state.apiSecret = value("loginApiSecret");
+          const data = await request("POST", "/merchants/login", {
+            api_key: state.apiKey,
+            api_secret: state.apiSecret,
+          });
+          state.token = data.token || "";
+          const jwt = decodeJwt(state.token);
+          state.merchantId = jwt.id || state.merchantId;
+          saveSession();
+          return data;
+        });
+      }
+
+      async function generateApiKeys() {
+        const tokenInput = document.getElementById("jwtToken");
+        const tokenWrapper = document.getElementById("tokenWrapper");
+
+        // 👇 If input not visible → show it and stop
+        if (tokenWrapper.style.display === "none") {
+          tokenWrapper.style.display = "block";
+          return;
+        }
+
+        const token = tokenInput.value.trim();
+
+        if (!token) {
+          alert("Please enter JWT token");
+          return;
+        }
+
+        await safe("loginResult", async () => {
+          const data = await request("POST", "/merchants/api-keys", {}, {
+            headers: {
+              Authorization: `Bearer ${token}`, // 👈 attach JWT
+            },
+          });
+
+          state.apiKey = data.api_key || "";
+          state.apiSecret = data.api_secret || "";
+          saveSession();
+
+          return data;
+        });
+      }
+
+      async function createOrder() {
+        await safe("orderResult", async () => {
+          const data = await request("POST", "/orders", {
+            amount: numberValue("orderAmount"),
+            currency: value("orderCurrency") || "INR",
+            receipt: value("orderReceipt") || undefined,
+          });
+          el("orderId").value = data.order_id || "";
+          el("paymentOrderId").value = data.order_id || "";
+          buildCheckoutUrl();
+          await listOrders();
+          return data;
+        });
+      }
+
+      async function listOrders() {
+        await safe("", async () => {
+          const data = await request("GET", "/orders");
+          table("ordersTable", data, [
+            { label: "Order ID", value: (r) => r.order_id || r.id },
+            { label: "Amount", value: (r) => money(r.amount) },
+            { label: "Currency", value: (r) => r.currency },
+            { label: "Status", value: (r) => r.status, status: true },
+            { label: "Receipt", value: (r) => r.receipt || "" },
+            {
+              label: "Created",
+              value: (r) => r.created_at || r.createdAt || "",
+            },
+          ]);
+          return data;
+        });
+      }
+
+      async function fetchOrder() {
+        await safe("orderResult", async () =>
+          request("GET", "/orders/" + value("orderId")),
+        );
+      }
+
+      function buildCheckoutUrl() {
+        const orderId = value("orderId") || value("paymentOrderId");
+        const url =
+          state.checkoutUrl +
+          "/checkout?order_id=" +
+          encodeURIComponent(orderId) +
+          "&token=" +
+          encodeURIComponent(state.token);
+        el("checkoutUrlBox").innerHTML =
+          orderId && state.token
+            ? '<a href="' +
+              escapeHtml(url) +
+              '" target="_blank" rel="noreferrer">' +
+              escapeHtml(url) +
+              "</a>"
+            : '<span class="muted">Create/select an order and login first.</span>';
+      }
+
+      async function initiatePayment() {
+        await safe("paymentResult", async () => {
+          const key = value("idempotencyKey") || "dashboard-" + Date.now();
+          el("idempotencyKey").value = key;
+          const data = await request(
+            "POST",
+            "/payments/initiate",
+            {
+              order_id: value("paymentOrderId"),
+              method: value("paymentMethod"),
+            },
+            { "idempotency-key": key },
+          );
+          el("paymentId").value = data.payment_id || "";
+          el("refundPaymentId").value = data.payment_id || "";
+          el("triggerPaymentId").value = data.payment_id || "";
+          await listPayments();
+          return data;
+        });
+      }
+
+      async function listPayments() {
+        await safe("", async () => {
+          const data = await request("GET", "/payments");
+          table("paymentsTable", data, [
+            { label: "Payment ID", value: (r) => r.payment_id || r.id },
+            { label: "Order ID", value: (r) => r.order_id || r.orderId },
+            {
+              label: "Amount",
+              value: (r) => money(r.amount || r.order?.amount),
+            },
+            { label: "Method", value: (r) => r.method },
+            { label: "Status", value: (r) => r.status, status: true },
+            {
+              label: "Transaction",
+              value: (r) => r.transaction_id || r.transactionId || "",
+            },
+            {
+              label: "Created",
+              value: (r) => r.createdAt || r.created_at || "",
+            },
+          ]);
+          return data;
+        });
+      }
+
+      async function fetchPayment() {
+        await safe("paymentResult", async () =>
+          request("GET", "/payments/" + value("paymentId")),
+        );
+      }
+
+      async function capturePayment() {
+        await safe("paymentResult", async () => {
+          const data = await request(
+            "POST",
+            "/payments/" + value("paymentId") + "/capture",
+          );
+          await listPayments();
+          return data;
+        });
+      }
+
+      async function createWebhook() {
+        await safe("webhookResult", async () => {
+          const data = await request("POST", "/webhooks", {
+            url: value("webhookUrl"),
+          });
+          el("webhookId").value = data.webhook_id || "";
+          await listWebhooks();
+          return data;
+        });
+      }
+
+      async function listWebhooks() {
+        await safe("", async () => {
+          const data = await request("GET", "/webhooks");
+          table("webhooksTable", data, [
+            { label: "Webhook ID", value: (r) => r.webhook_id || r.id },
+            { label: "URL", value: (r) => r.url },
+            { label: "Secret", value: (r) => r.secret },
+            {
+              label: "Created",
+              value: (r) => r.created_at || r.createdAt || "",
+            },
+          ]);
+          return data;
+        });
+      }
+
+      async function fetchWebhook() {
+        await safe("webhookResult", async () =>
+          request("GET", "/webhooks/" + value("webhookId")),
+        );
+      }
+
+      async function deleteWebhook() {
+        await safe("webhookResult", async () => {
+          const data = await request(
+            "DELETE",
+            "/webhooks/" + value("webhookId"),
+          );
+          await listWebhooks();
+          return data;
+        });
+      }
+
+      async function triggerWebhook() {
+        await safe("webhookResult", async () => {
+          let payload = {};
+          try {
+            payload = JSON.parse(value("triggerPayload") || "{}");
+          } catch {
+            throw new Error("Invalid payload JSON");
+          }
+          if (value("triggerPaymentId"))
+            payload.payment_id = value("triggerPaymentId");
+          return request("POST", "/webhooks/trigger", {
+            merchantId: value("triggerMerchantId"),
+            event: value("triggerEvent"),
+            payload,
+          });
+        });
+      }
+
+      async function createRefund() {
+        await safe("refundResult", async () => {
+          const data = await request("POST", "/refunds", {
+            payment_id: value("refundPaymentId"),
+            amount: numberValue("refundAmount"),
+          });
+          el("refundId").value = data.refund_id || "";
+          await listRefunds();
+          return data;
+        });
+      }
+
+      async function listRefunds() {
+        await safe("", async () => {
+          const data = await request("GET", "/refunds");
+          table("refundsTable", data, [
+            { label: "Refund ID", value: (r) => r.refund_id || r.id },
+            { label: "Payment ID", value: (r) => r.payment_id || r.paymentId },
+            { label: "Amount", value: (r) => money(r.amount) },
+            { label: "Status", value: (r) => r.status, status: true },
+            {
+              label: "Created",
+              value: (r) => r.created_at || r.createdAt || "",
+            },
+          ]);
+          return data;
+        });
+      }
+
+      async function fetchRefund() {
+        await safe("refundResult", async () =>
+          request("GET", "/refunds/" + value("refundId")),
+        );
+      }
+
+      async function createSettlement() {
+        await safe("settlementResult", async () => {
+          const data = await request("POST", "/settlements");
+          el("settlementId").value = data.settlement_id || data.id || "";
+          await listSettlements();
+          return data;
+        });
+      }
+
+      async function listSettlements() {
+        await safe("", async () => {
+          const data = await request("GET", "/settlements");
+          table("settlementsTable", data, [
+            { label: "Settlement ID", value: (r) => r.settlement_id || r.id },
+            {
+              label: "Amount",
+              value: (r) => money(r.amount || r.settlement_amount),
+            },
+            { label: "Status", value: (r) => r.status, status: true },
+            {
+              label: "Processed",
+              value: (r) => r.processed_at || r.processedAt || "",
+            },
+            { label: "Created", value: (r) => r.createdAt || "" },
+          ]);
+          return data;
+        });
+      }
+
+      async function fetchSettlement() {
+        await safe("settlementResult", async () =>
+          request("GET", "/settlements/" + value("settlementId")),
+        );
+      }
+
+      async function settlementSummary() {
+        await safe("settlementResult", async () =>
+          request("GET", "/settlements/summary"),
+        );
+      }
+
+      async function sendConsole() {
+        await safe("consoleResult", async () => {
+          const method = value("consoleMethod");
+          const path = value("consolePath").startsWith("/")
+            ? value("consolePath")
+            : "/" + value("consolePath");
+          let body;
+          if (!["GET", "HEAD"].includes(method)) {
+            try {
+              body = JSON.parse(value("consoleBody") || "{}");
+            } catch {
+              throw new Error("Invalid body JSON");
+            }
+          }
+          const extra = {};
+          if (value("consoleIdempotency"))
+            extra["idempotency-key"] = value("consoleIdempotency");
+          return request(method, path, body, extra);
+        });
+      }
+
+      renderNav();
+      renderSession();
+      loadConfig();
+      loadHealth();
+      setActive(localStorage.getItem("payflow.activeSection") || "overview");
+    </script>
+  </body>
+</html>

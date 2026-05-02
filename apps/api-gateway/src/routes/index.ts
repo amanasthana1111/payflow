@@ -7,7 +7,7 @@ const ORDER_URL = process.env.ORDER_SERVICE_URL || 'http://127.0.0.1:3002';
 const PAYMENT_URL = process.env.PAYMENT_SERVICE_URL || 'http://127.0.0.1:3003';
 const WEBHOOK_URL = process.env.WEBHOOK_SERVICE_URL || 'http://127.0.0.1:3004';
 const REFUND_URL = process.env.REFUND_SERVICE_URL || 'http://127.0.0.1:3005';
-const SETTLEMENT_URL = process.env.SETTLEMENT_URL || 'http://127.0.0.1:3006';
+const SETTLEMENT_URL = process.env.SETTLEMENT_SERVICE_URL || process.env.SETTLEMENT_URL || 'http://127.0.0.1:3006';
 
 export async function routes(app: FastifyInstance) {
   // ── AUTH (public) ────────────────────────────────────────
